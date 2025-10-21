@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: components-version-exporter
+  namespace: os
+  labels:
+    app: components-version-exporter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: components-version-exporter
+  template:
+    metadata:
+      labels:
+        app: components-version-exporter
+    spec:
+      serviceAccountName: version-exporter
+      containers:
+        - name: components-version-exporter
+          image: your-registry
+          command: ["python"]
+          args: ["/app/src/mainversh.py"]
+          ports:
+            - name: v-exporter
+              containerPort: 8000
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "200m"
+              memory: "256Mi"
+          readinessProbe:
+            httpGet:
+              port: 8000
+            initialDelaySeconds: 10
+            timeoutSeconds: 1
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            readOnlyRootFilesystem: true
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}

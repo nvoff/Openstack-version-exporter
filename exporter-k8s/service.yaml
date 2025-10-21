@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: components-version-exporter
+  namespace: os
+  labels:
+      app: components-version-exporter
+spec:
+  selector:
+    app: components-version-exporter
+  ports:
+    - name: v-exporter
+      port: 8000
+      targetPort: 8000
